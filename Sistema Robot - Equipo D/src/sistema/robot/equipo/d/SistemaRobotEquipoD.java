@@ -11,14 +11,14 @@ import java.util.Random;
 
 public class SistemaRobotEquipoD {
 
-    private static final int TAMANO_MATRIZ = 10;
-    private static char[][] matriz = new char[TAMANO_MATRIZ][TAMANO_MATRIZ];
+
     private static Scanner scanner = new Scanner(System.in);
-    private static int posX = TAMANO_MATRIZ / 2;  // Posición inicial central
-    private static int posY = TAMANO_MATRIZ / 2;
-    private static int posXMascota = 3; // Posición de la mascota
-    private static int posYMascota = 6; // Posición de la mascota
-    private static char direccion = '^';  // '^': arriba, 'v': abajo, '<': izquierda, '>': derecha
+    private static int posX;
+    private static int posY;
+    private static char direccion;
+    private static int posXMascota;
+    private static int posYMascota;
+    private static final int TAMANO_MATRIZ = 10;
     private static List<Usuario> usuarios = new ArrayList<>();
     private static List<Robot> robots = new ArrayList<>();
 
@@ -100,7 +100,13 @@ public class SistemaRobotEquipoD {
             altavoz1.setNumeroActuadores(altavoz1.getActuadores().size());
             robots.add(robot1);
 
-            ingresarSimulacion(usuario1.getId());
+            //numero de motores predeterminados
+            extension1.setNumeroMotores(1);
+            rotacion1.setNumeroMotores(1);
+            helicoidal1.setNumeroMotores(1);
+
+            char[][] miMatriz = new char[TAMANO_MATRIZ][TAMANO_MATRIZ];
+            actualizarMatriz(robot1, miMatriz);
 
             //menuUsuario();
         } catch (Exception e) {
@@ -214,7 +220,7 @@ public class SistemaRobotEquipoD {
         robotUsuario.agregarModulo(camara);
         robotUsuario.agregarModulo(sensorProximidad);
         robotUsuario.agregarModulo(altavoz);
-        
+
         //Asignar sistemas de control a los modulos
         extension.setSistemaControl(new SistemaControl(extension.getId()));
         rotacion.setSistemaControl(new SistemaControl(rotacion.getId()));
@@ -222,14 +228,20 @@ public class SistemaRobotEquipoD {
         camara.setSistemaControl(new SistemaControl(camara.getId()));
         sensorProximidad.setSistemaControl(new SistemaControl(sensorProximidad.getId()));
         altavoz.setSistemaControl(new SistemaControl(altavoz.getId()));
-
+        
         //Crear sistemas de comunicacion para cada modulo
         SistemaComunicacion sControlExtension = new SistemaComunicacion(extension.getId());
+        sControlExtension.setReceptor(true);
         SistemaComunicacion sControlRotacion = new SistemaComunicacion(rotacion.getId());
+        sControlRotacion.setReceptor(true);
         SistemaComunicacion sControlHelicoidal = new SistemaComunicacion(helicoidal.getId());
+        sControlHelicoidal.setReceptor(true);
         SistemaComunicacion sControlCamara = new SistemaComunicacion(camara.getId());
+        sControlCamara.setEmisor(true);
         SistemaComunicacion sControlSensorProximidad = new SistemaComunicacion(sensorProximidad.getId());
+        sControlCamara.setEmisor(true);
         SistemaComunicacion sControlAltavoz = new SistemaComunicacion(altavoz.getId());
+        sControlAltavoz.setEmisor(true);
 
         //Asociar usuario a los sistemas de comunicacion
         sControlExtension.asociarUsuario(idUsuario);
@@ -261,6 +273,11 @@ public class SistemaRobotEquipoD {
         Actuador bocina = new Actuador(35654,"ALTAVOZ","Actuador de bocina");
         altavoz.agregarActuador(bocina);
         altavoz.setNumeroActuadores(altavoz.getActuadores().size());
+
+        //numero de motores predeterminados
+        extension.setNumeroMotores(1);
+        rotacion.setNumeroMotores(1);
+        helicoidal.setNumeroMotores(1);
 
         robots.add(robotUsuario);
         
@@ -307,11 +324,12 @@ public class SistemaRobotEquipoD {
 
     private static void ingresarSimulacion(int idUsuario) {
         System.out.println("Ingresando a la simulación...");
+        char[][] miMatriz = new char[TAMANO_MATRIZ][TAMANO_MATRIZ];
         for (Robot robot : robots) {
             if (robot.getIdUsuario() == idUsuario) {
                 System.out.println("Bienvenido, " + robot.getAlias() + "!");
                 robot.encender();
-                actualizarMatriz(robot,matriz);
+                actualizarMatriz(robot,miMatriz);
                 break; // Sale del bucle una vez que encuentra el robot del usuario
             }
         }
@@ -320,241 +338,275 @@ public class SistemaRobotEquipoD {
 
 //Parte que controla la simulacion del robot y la matriz donde se mueve el robot, imprime mascota y obstaculos
 //----------------------------------------------------------------------------------------------------------------------------------------
-    private static void inicializarMatriz() {
-        for (int i = 0; i < TAMANO_MATRIZ; i++) {
-            for (int j = 0; j < TAMANO_MATRIZ; j++) {
-                matriz[i][j] = '.';
-            }
-        }
-        matriz[posY][posX] = direccion;  // Posición inicial del robot
-    }
-
-    private static void colocarObstaculos() {
-        matriz[2][2] = 'O';  // Obstáculo
-        matriz[5][7] = 'O';
-        matriz[8][3] = 'O';
-        matriz[posYMascota][posXMascota] = 'P';  // Mascota
-    }
-
-    private static void imprimirMatriz() {
-        System.out.println("\nEstado del entorno:");
-        for (int i = 0; i < TAMANO_MATRIZ; i++) {
-            for (int j = 0; j < TAMANO_MATRIZ; j++) {
-                System.out.print(matriz[i][j] + " ");
-            }
-            System.out.println();
+private static void inicializarMatriz(char[][] matriz) {
+    for (int i = 0; i < TAMANO_MATRIZ; i++) {
+        for (int j = 0; j < TAMANO_MATRIZ; j++) {
+            matriz[i][j] = '.'; // Inicializa la matriz con espacios vacíos
         }
     }
+    // Posición inicial del robot
+    posX = TAMANO_MATRIZ / 2;
+    posY = TAMANO_MATRIZ / 2;
+    direccion = '^';
+    matriz[posY][posX] = direccion;
+}
 
-    private static void girarDerecha() {
-        switch (direccion) {
-            case '^': direccion = '>'; break;
-            case '>': direccion = 'v'; break;
-            case 'v': direccion = '<'; break;
-            case '<': direccion = '^'; break;
+private static void colocarObstaculos(char[][] matriz) {
+    Random rand = new Random();
+    // Colocar algunos obstáculos aleatorios
+    for (int i = 0; i < 5; i++) {
+        matriz[rand.nextInt(TAMANO_MATRIZ)][rand.nextInt(TAMANO_MATRIZ)] = 'O';
+    }
+    // Colocar la mascota
+    posXMascota = rand.nextInt(TAMANO_MATRIZ);
+    posYMascota = rand.nextInt(TAMANO_MATRIZ);
+    matriz[posYMascota][posXMascota] = 'P';
+}
+
+private static void imprimirMatriz(char[][] matriz) {
+    System.out.println("--- Mapa del Robot ---");
+    for (int i = 0; i < TAMANO_MATRIZ; i++) {
+        for (int j = 0; j < TAMANO_MATRIZ; j++) {
+            System.out.print(matriz[i][j] + " ");
         }
-        matriz[posY][posX] = direccion;
-        System.out.println("Dirección actual: " + direccion);
+        System.out.println();
+    }
+    System.out.println("----------------------");
+}
+
+private static int[] calcularPosicionProximidad() {
+    int xprox = posX;
+    int yprox = posY;
+    switch (direccion) {
+        case '^':
+            yprox = posY - 1;
+            break;
+        case 'v':
+            yprox = posY + 1;
+            break;
+        case '<':
+            xprox = posX - 1;
+            break;
+        case '>':
+            xprox = posX + 1;
+            break;
+    }
+    return new int[]{xprox, yprox};
+}
+
+private static void moverRobotEnMatriz(int nuevoPosX, int nuevoPosY, char[][] matriz) {
+    matriz[posY][posX] = '.'; // Limpia la posición anterior
+    posX = nuevoPosX;
+    posY = nuevoPosY;
+    matriz[posY][posX] = direccion; // Actualiza la nueva posición
+}
+
+private static void girarIzquierda() {
+    switch (direccion) {
+        case '^':
+            direccion = '<';
+            break;
+        case '<':
+            direccion = 'v';
+            break;
+        case 'v':
+            direccion = '>';
+            break;
+        case '>':
+            direccion = '^';
+            break;
+    }
+}
+
+private static void girarDerecha() {
+    switch (direccion) {
+        case '^':
+            direccion = '>';
+            break;
+        case '>':
+            direccion = 'v';
+            break;
+        case 'v':
+            direccion = '<';
+            break;
+        case '<':
+            direccion = '^';
+            break;
+    }
+}
+
+// --- Lógica principal de la simulación ---
+
+private static void manejarMovimiento(SensorProximidad sensorProximidad, Camara camara, ModuloDinamicoExtension extension, char[][] matriz, int xprox, int yprox) {
+    int resProximidad = sensorProximidad.procesarDatos(sensorProximidad.captarInformacion(yprox, xprox, matriz));
+    int resCamara = camara.procesarDatos(camara.captarInformacion(yprox, xprox, matriz));
+
+    if (resProximidad == 0 && resCamara == 3) {
+        System.out.println("SENSOR DE PROXIMIDAD: No hay obstáculo adelante.");
+        System.out.println("CÁMARA: Camino libre.");
+        int movimiento = extension.moverse(new float[]{(float) (xprox - posX), (float) (yprox - posY)});
+        if (movimiento == 1) { // Arriba
+            System.out.println("El robot se ha movido arriba.");
+            moverRobotEnMatriz(posX, posY - 1, matriz);
+        } else if (movimiento == -1) { // Abajo
+            System.out.println("El robot se ha movido abajo.");
+            moverRobotEnMatriz(posX, posY + 1, matriz);
+        } else if (movimiento == 2) { // Derecha
+            System.out.println("El robot se ha movido hacia la derecha.");
+            moverRobotEnMatriz(posX + 1, posY, matriz);
+        } else if (movimiento == -2) { // Izquierda
+            System.out.println("El robot se ha movido hacia la izquierda.");
+            moverRobotEnMatriz(posX - 1, posY, matriz);
+        } else {
+            System.out.println("Movimiento no válido.");
+        }
+    } else {
+        System.out.println("Resultados de los sensores: Proximidad=" + resProximidad + ", Cámara=" + resCamara);
+        System.out.println("El robot no puede avanzar en esta dirección.");
+    }
+}
+
+private static void manejarInteraccionObstaculo(int resProximidad, int resCamara, Altavoz altavoz, ModuloDinamicoRotacion rotacion, ModuloDinamicoHelicoidal helicoidal, char[][] matriz) {
+    if (resProximidad == 1 && resCamara == 1) {
+        System.out.println("SENSOR DE PROXIMIDAD: Hay un obstáculo adelante.");
+        System.out.println("CÁMARA: Mascota detectada.");
+        if (altavoz.realizarAccion() == 1) {
+            System.out.println("El robot ha emitido un sonido para alejar a la mascota.");
+            matriz[posYMascota][posXMascota] = '.'; // Limpia la posición anterior de la mascota
+            posXMascota = new Random().nextInt(TAMANO_MATRIZ);
+            posYMascota = new Random().nextInt(TAMANO_MATRIZ);
+            matriz[posYMascota][posXMascota] = 'P'; // Actualiza la posición de la mascota
+        } else {
+            System.out.println("No se pudo emitir el sonido.");
+        }
+    } else if (resProximidad == 1 && resCamara == 2) {
+        System.out.println("SENSOR DE PROXIMIDAD: Hay un obstáculo adelante.");
+        System.out.println("CÁMARA: Obstáculo detectado.");
+        int[] rotaciones = {1, -1}; // 1 para girar derecha, -1 para girar izquierda
+        int giro = rotacion.moverse(new float[]{rotaciones[new Random().nextInt(rotaciones.length)]});
+        if (giro == 1) {
+            System.out.println("El robot ha girado a la derecha.");
+            girarDerecha();
+            matriz[posY][posX] = direccion;
+        } else if (giro == -1) {
+            System.out.println("El robot ha girado a la izquierda.");
+            girarIzquierda();
+            matriz[posY][posX] = direccion;
+        } else {
+            System.out.println("Giro no válido.");
+        }
+    } else if (resProximidad == 0 && resCamara == 4) {
+        System.out.println("SENSOR DE PROXIMIDAD: No hay obstáculo adelante.");
+        System.out.println("CÁMARA: Sensor fuera de los límites.");
+        int[] rotaciones = {1, -1}; // 1 para girar derecha, -1 para girar izquierda
+        int giro = helicoidal.moverse(new float[]{rotaciones[new Random().nextInt(rotaciones.length)]});
+        if (giro == 1) {
+            System.out.println("El robot ha girado a la derecha.");
+            girarDerecha();
+            matriz[posY][posX] = direccion;
+        } else if (giro == -1) {
+            System.out.println("El robot ha girado a la izquierda.");
+            girarIzquierda();
+            matriz[posY][posX] = direccion;
+        } else {
+            System.out.println("Giro no válido.");
+        }
+    } else {
+        System.out.println("Resultados inesperados de los sensores.");
+    }
+}
+
+private static void procesarEntradaUsuario(char opcion, Scanner scanner, Robot robot,
+                                           SensorProximidad sensorProximidad, Camara camara, Altavoz altavoz,
+                                           ModuloDinamicoExtension extension, ModuloDinamicoRotacion rotacion,
+                                           ModuloDinamicoHelicoidal helicoidal, char[][] matriz, int xprox, int yprox) {
+    switch (opcion) {
+        case 'w':
+            int resProximidad = sensorProximidad.procesarDatos(sensorProximidad.captarInformacion(yprox, xprox, matriz));
+            int resCamara = camara.procesarDatos(camara.captarInformacion(yprox, xprox, matriz));
+
+            if (resProximidad == 0 && resCamara == 3) {
+                manejarMovimiento(sensorProximidad, camara, extension, matriz, xprox, yprox);
+            } else {
+                manejarInteraccionObstaculo(resProximidad, resCamara, altavoz, rotacion, helicoidal, matriz);
+            }
+            break;
+        case 'a':
+            rotacion.moverse(new float[]{-1});
+            System.out.println("El robot ha girado a la izquierda.");
+            girarIzquierda();
+            matriz[posY][posX] = direccion;
+            break;
+        case 'd':
+            rotacion.moverse(new float[]{1});
+            System.out.println("El robot ha girado a la derecha.");
+            girarDerecha();
+            matriz[posY][posX] = direccion;
+            break;
+        case 'q':
+            scanner.close();
+            System.out.println("Saliendo de la simulación...");
+            robot.apagar();
+            System.exit(0); // Termina la aplicación
+            break;
+        default:
+            System.out.println("Opción no válida. Intente de nuevo.");
+            break;
+    }
+}
+
+public static void actualizarMatriz(Robot robot, char[][] matriz) {
+    // Encontrar los módulos del robot
+    SensorProximidad sensorProximidad = null;
+    Camara camara = null;
+    Altavoz altavoz = null;
+    ModuloDinamicoExtension extension = null;
+    ModuloDinamicoRotacion rotacion = null;
+    ModuloDinamicoHelicoidal helicoidal = null;
+
+    for (Modulo modulo : robot.getModulos()) {
+        if (modulo instanceof SensorProximidad) {
+            sensorProximidad = (SensorProximidad) modulo;
+        } else if (modulo instanceof Camara) {
+            camara = (Camara) modulo;
+        } else if (modulo instanceof Altavoz) {
+            altavoz = (Altavoz) modulo;
+        } else if (modulo instanceof ModuloDinamicoExtension) {
+            extension = (ModuloDinamicoExtension) modulo;
+        } else if (modulo instanceof ModuloDinamicoRotacion) {
+            rotacion = (ModuloDinamicoRotacion) modulo;
+        } else if (modulo instanceof ModuloDinamicoHelicoidal) {
+            helicoidal = (ModuloDinamicoHelicoidal) modulo;
+        }
     }
 
-    private static void girarIzquierda() {
-        switch (direccion) {
-            case '^': direccion = '<'; break;
-            case '<': direccion = 'v'; break;
-            case 'v': direccion = '>'; break;
-            case '>': direccion = '^'; break;
-        }
-        matriz[posY][posX] = direccion;
-        System.out.println("Dirección actual: " + direccion);
+    if (sensorProximidad == null || camara == null || altavoz == null ||
+        extension == null || rotacion == null || helicoidal == null) {
+        System.err.println("Error: Faltan módulos esenciales en el robot.");
+        return;
     }
 
-    private static void actualizarMatriz(Robot robot, char[][] matriz) {
-        int id = 0, resProximidad = 0, resCamara = 0, xprox = 0, yprox = 0, movimiento = 0, giro = 0;
-        String mensaje = null;
-        SensorProximidad sensorProximidad = null;
-        Camara camara = null;
-        Altavoz altavoz = null;
-        ModuloDinamicoExtension extension = null;
-        ModuloDinamicoRotacion rotacion = null;
-        ModuloDinamicoHelicoidal helicoidal = null;
+    robot.encender();
+    inicializarMatriz(matriz);
+    colocarObstaculos(matriz);
 
-        // Buscar los módulos del robot
-        for(Modulo modulo : robot.getModulos()){
-            if(modulo instanceof SensorProximidad){
-                sensorProximidad = (SensorProximidad) modulo;
-            }
-            if (modulo instanceof Camara){
-                camara = (Camara) modulo;
-            }
-            if (modulo instanceof Altavoz){
-                altavoz = (Altavoz) modulo;
-            }
-            if (modulo instanceof ModuloDinamicoExtension){
-                extension = (ModuloDinamicoExtension) modulo;
-            }
-            if (modulo instanceof ModuloDinamicoRotacion){
-                rotacion = (ModuloDinamicoRotacion) modulo;
-            }
-            if (modulo instanceof ModuloDinamicoHelicoidal){
-                helicoidal = (ModuloDinamicoHelicoidal) modulo;
-            }
-        }
-        inicializarMatriz();
-        colocarObstaculos();
-        do{
-            imprimirMatriz();
-            if(direccion == '^'){
-                xprox = posX; // Mantiene la posición X
-                yprox = posY - 1; // Avanza hacia arriba
-            } else if (direccion == 'v'){
-                xprox = posX; // Mantiene la posición X
-                yprox = posY + 1; // Avanza hacia abajo
-            } else if (direccion == '<'){
-                yprox = posY; // Mantiene la posición Y
-                xprox = posX - 1; // Avanza hacia la izquierda
-            } else if (direccion == '>'){
-                yprox = posY; // Mantiene la posición Y
-                xprox = posX + 1; // Avanza hacia la derecha
-            }
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Presione w para avanzar");
-            System.out.println("Presione a para girar a la izquierda");
-            System.out.println("Presione d para girar a la derecha");
-            System.out.println("Presione q para salir de la simulación");
-            char opcion = scanner.next().charAt(0);
+    Scanner scanner = new Scanner(System.in);
 
-            if (opcion == 'w'){
-                // Capturar información de los sensores
-                resProximidad = sensorProximidad.procesarDatos(sensorProximidad.captarInformacion(yprox, xprox, matriz));
-                resCamara = camara.procesarDatos(camara.captarInformacion(yprox, xprox, matriz));
+    do {
+        imprimirMatriz(matriz);
+        int[] proxCoords = calcularPosicionProximidad();
+        int xprox = proxCoords[0];
+        int yprox = proxCoords[1];
 
-                if(resProximidad == 0 && resCamara == 3){
-                    System.out.println("SENSOR DE PROXIMIDAD: No hay obstáculo adelante.");
-                    System.out.println("CAMARA: Camino libre.");
-                    // Avanzar el robot
-                    movimiento = extension.moverse(new float[] {(float)(xprox-posX), (float)(yprox-posY)});
-                    if(movimiento == 1){
-                        System.out.println("El robot se ha movido arriba");
-                        matriz[posY][posX] = '.'; // Limpia la posición anterior
-                        posY-=1; // Mueve el robot hacia arriba
-                        matriz[posY][posX] = direccion; // Actualiza la matriz
-                    } else if(movimiento == -1){
-                        System.out.println("El robot se ha movido abajo");
-                        matriz[posY][posX] = '.'; // Limpia la posición anterior
-                        posY+=1; // Mueve el robot hacia abajo
-                        matriz[posY][posX] = direccion; // Actualiza la matriz
-                    } else if(movimiento == 2){
-                        System.out.println("El robot se ha movido hacia la derecha");
-                        matriz[posY][posX] = '.'; // Limpia la posición anterior
-                        posX+=1; // Mueve el robot hacia la derecha
-                        matriz[posY][posX] = direccion; // Actualiza la matriz
-                    } else if(movimiento == -2){
-                        System.out.println("El robot se ha movido hacia la izquierda");
-                        matriz[posY][posX] = '.'; // Limpia la posición anterior
-                        posX-=1; // Mueve el robot hacia la izquierda
-                        matriz[posY][posX] = direccion; // Actualiza la matriz
-                    } else {
-                        System.out.println("Movimiento no válido.");
-                    }
-                } else if (resProximidad == 1 && resCamara == 1) {
-                    System.out.println("SENSOR DE PROXIMIDAD: Hay un obstáculo adelante.");
-                    System.out.println("CAMARA: Mascota detectada.");
-                    if(altavoz.realizarAccion() == 1){
-                        System.out.println("El robot ha emitido un sonido para alejar a la mascota.");
-                        // Logica para mover a la mascota
-                        matriz[posYMascota][posXMascota] = '.'; // Limpia la posición anterior de la mascota
-                        posXMascota = new Random().nextInt(TAMANO_MATRIZ);
-                        posYMascota = new Random().nextInt(TAMANO_MATRIZ);
-                        matriz[posYMascota][posXMascota] = 'P'; // Actualiza la posición de la mascota
-                    } else {
-                        System.out.println("No se pudo emitir el sonido.");
-                    }
-                } else if (resProximidad == 1 && resCamara == 2) {
-                    System.out.println("SENSOR DE PROXIMIDAD: Hay un obstáculo adelante.");
-                    System.out.println("CAMARA: Obstáculo detectado.");
-                    // Algoritmo para evitar el obstáculo
-                    int[] rotaciones = {1, -1}; // 1 para girar derecha, -1 para girar izquierda
-                    giro = rotacion.moverse(new float[] {rotaciones[new Random().nextInt(rotaciones.length)]});
-                    if(giro == 1) {
-                        System.out.println("El robot ha girado a la derecha.");
-                        girarDerecha();
-                    } else if (giro == -1) {
-                        System.out.println("El robot ha girado a la izquierda.");
-                        girarIzquierda();
-                    } else {
-                        System.out.println("Giro no válido.");
-                    }
-                } else if (resProximidad == 0 && resCamara == 4) {
-                    System.out.println("SENSOR DE PROXIMIDAD: No hay obstáculo adelante.");
-                    System.out.println("CAMARA: Sensor fuera de los límites.");
-                    // Algoritmo para evitar el obstáculo
-                    int[] rotaciones = {1, -1}; // 1 para girar derecha, -1 para girar izquierda
-                    giro = helicoidal.moverse(new float[] {rotaciones[new Random().nextInt(rotaciones.length)]});
-                    if(giro == 1) {
-                        System.out.println("El robot ha girado a la derecha.");
-                        girarDerecha();
-                    } else if (giro == -1) {
-                        System.out.println("El robot ha girado a la izquierda.");
-                        girarIzquierda();
-                    } else {
-                        System.out.println("Giro no válido.");
-                    }
-                } else {
-                    System.out.println("Resultados inesperados de los sensores.");
-                }
-            } else if (opcion == 'a'){
-                // Gira a la izquierda
-                rotacion.moverse(new float[] {-1}); // -1 para girar a la izquierda
-                System.out.println("El robot ha girado a la izquierda.");
-                girarIzquierda();
-            } else if (opcion == 'd'){
-                // Gira a la derecha
-                rotacion.moverse(new float[] {1}); // 1 para girar a la derecha
-                System.out.println("El robot ha girado a la derecha.");
-                girarDerecha();
-            } else if (opcion == 'q'){
-                scanner.close();
-                System.out.println("Saliendo de la simulación...");
-                robot.apagar();
-                return; // Sale del bucle y termina la simulación
-            
-            }  else {
-                System.out.println("Opción no válida. Intente de nuevo.");
-            }
-        } while(true);
+        System.out.println("\nPresione 'w' para avanzar");
+        System.out.println("Presione 'a' para girar a la izquierda");
+        System.out.println("Presione 'd' para girar a la derecha");
+        System.out.println("Presione 'q' para salir de la simulación");
+        System.out.print("Ingrese su opción: ");
+
+        char opcion = scanner.next().charAt(0);
+        procesarEntradaUsuario(opcion, scanner, robot, sensorProximidad, camara, altavoz, extension, rotacion, helicoidal, matriz, xprox, yprox);
+
+    } while (true);
     }
-    
-    /*public static void actualizarMatriz(Robot robot) {
-        inicializarMatriz();
-        colocarObstaculos();
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            imprimirMatriz();
-            System.out.println("\nOpciones:");
-            System.out.println("1. Mover adelante");
-            System.out.println("2. Girar derecha");
-            System.out.println("3. Girar izquierda");
-            System.out.println("4. Salir");
-            System.out.print("Seleccione una opción: ");
-
-            int opcion = scanner.nextInt();
-
-            switch (opcion) {
-                case 1:
-                    
-                    break;
-                case 2:
-                    
-                    break;
-                case 3:
-                    
-                    break;
-                case 4:
-                    scanner.close();
-                    return;
-                default:
-                    System.out.println("Opción no válida");
-            }
-        }
-    }*/
 }
