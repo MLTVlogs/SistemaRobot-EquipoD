@@ -56,11 +56,17 @@ public class SistemaRobotEquipoD {
             
             //Crear sistemas de comunicacion para cada modulo
             SistemaComunicacion sControlExtension = new SistemaComunicacion(extension1.getId());
+            sControlExtension.setReceptor(true);
             SistemaComunicacion sControlRotacion = new SistemaComunicacion(rotacion1.getId());
+            sControlRotacion.setReceptor(true);
             SistemaComunicacion sControlHelicoidal = new SistemaComunicacion(helicoidal1.getId());
+            sControlHelicoidal.setReceptor(true);
             SistemaComunicacion sControlCamara = new SistemaComunicacion(camara1.getId());
+            sControlCamara.setEmisor(true);
             SistemaComunicacion sControlSensorProximidad = new SistemaComunicacion(sensorProximidad1.getId());
+            sControlCamara.setEmisor(true);
             SistemaComunicacion sControlAltavoz = new SistemaComunicacion(altavoz1.getId());
+            sControlAltavoz.setEmisor(true);
 
             //Asociar usuario a los sistemas de comunicacion
             sControlExtension.asociarUsuario(usuario1.getId());
@@ -89,7 +95,7 @@ public class SistemaRobotEquipoD {
             sensorProximidad1.setNumeroSensores(sensorProximidad1.getSensores().size());
 
             //añadir actuadores
-            Actuador bocina = new Actuador(35654,"ALTAVOZ   ","Actuador de bocina");
+            Actuador bocina = new Actuador(35654,"ALTAVOZ","Actuador de bocina");
             altavoz1.agregarActuador(bocina);
             altavoz1.setNumeroActuadores(altavoz1.getActuadores().size());
             robots.add(robot1);
@@ -425,7 +431,7 @@ public class SistemaRobotEquipoD {
                 if(resProximidad == 0 && resCamara == 3){
                     System.out.println("SENSOR DE PROXIMIDAD: No hay obstáculo adelante.");
                     System.out.println("CAMARA: Camino libre.");
-                    // Avanzar el robo
+                    // Avanzar el robot
                     movimiento = extension.moverse(new float[] {(float)(xprox-posX), (float)(yprox-posY)});
                     if(movimiento == 1){
                         System.out.println("El robot se ha movido arriba");
@@ -483,7 +489,7 @@ public class SistemaRobotEquipoD {
                     System.out.println("CAMARA: Sensor fuera de los límites.");
                     // Algoritmo para evitar el obstáculo
                     int[] rotaciones = {1, -1}; // 1 para girar derecha, -1 para girar izquierda
-                    giro = rotacion.moverse(new float[] {rotaciones[new Random().nextInt(rotaciones.length)]});
+                    giro = helicoidal.moverse(new float[] {rotaciones[new Random().nextInt(rotaciones.length)]});
                     if(giro == 1) {
                         System.out.println("El robot ha girado a la derecha.");
                         girarDerecha();
@@ -509,6 +515,7 @@ public class SistemaRobotEquipoD {
             } else if (opcion == 'q'){
                 scanner.close();
                 System.out.println("Saliendo de la simulación...");
+                robot.apagar();
                 return; // Sale del bucle y termina la simulación
             
             }  else {

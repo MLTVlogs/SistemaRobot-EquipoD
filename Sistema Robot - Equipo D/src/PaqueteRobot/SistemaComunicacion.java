@@ -76,9 +76,9 @@ public class SistemaComunicacion{
         }
     }
 
-    public void recibirMensaje(String mensaje){
+    public void recibirMensaje(String mensaje,int idUsuario){
         if (receptor == true){
-            System.out.println("El mensaje es: " + mensaje);
+            System.out.println("El mensaje es: " + mensaje + " y el id del usuario es: " + idUsuario );
         } else {
             System.out.println("El mensaje no se pudo recibir");
         }

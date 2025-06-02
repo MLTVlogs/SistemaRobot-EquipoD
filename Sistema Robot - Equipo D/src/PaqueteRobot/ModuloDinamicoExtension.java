@@ -23,7 +23,7 @@ public class ModuloDinamicoExtension extends ModuloDinamico {
             return 0; // Movimiento no válido
         }
     }
-
+    
     @Override
     public void recibirInfoAccion(int idAccion) {
         //Logica a implementar

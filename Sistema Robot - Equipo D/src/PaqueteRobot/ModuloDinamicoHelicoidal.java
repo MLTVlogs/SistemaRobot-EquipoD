@@ -7,7 +7,15 @@ public class ModuloDinamicoHelicoidal extends ModuloDinamico {
     }
 
     public int moverse(float[] movimiento){
-        return 0;//Logica a implementar
+        // Implementar la logica de rotacion
+        float r = movimiento[0];
+        if (r == 1){
+            return 1; // Rotar a la derecha y avanzar
+        } else if (r == -1) {
+            return -1; // Rotar a la izquierda y avanzar
+        } else {
+            return 0; // Movimiento no válido
+        }
     }
 
     @Override
