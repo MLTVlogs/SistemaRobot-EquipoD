@@ -61,7 +61,7 @@ public class Sensor implements InterfazSensor {
         switch (this.tipo) {
             case "PROXIMIDAD":
 
-                if (cellContent == 'O' || cellContent == 'P') {
+                if (cellContent == 'X' || cellContent == 'P') {
                     return true;
                 } else {
                     return false;
@@ -70,7 +70,7 @@ public class Sensor implements InterfazSensor {
                 
                 if (cellContent == 'P') {
                     return "MASCOTA";
-                } else if (cellContent == 'O') {
+                } else if (cellContent == 'X') {
                     return "OBSTACULO";
                 } else if (cellContent == '.') { 
                     return "LIBRE";

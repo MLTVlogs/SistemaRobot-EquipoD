@@ -1,9 +1,5 @@
 package PaqueteRobot;
 
-/**
- * 
- */
-
 public class ModuloDinamicoRotacion extends ModuloDinamico {
     
     public ModuloDinamicoRotacion(int id, String referencia, String descripcion, int largo, int ancho, int profundidad) {

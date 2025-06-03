@@ -20,20 +20,6 @@ public class SistemaRobotEquipoD {
 
     public static void main(String[] args) {
         try {
-
-            inicializarMatriz();
-            colocarObstaculos();
-
-
-            Usuario usuario1 = new Usuario(1, "Usuario1", "Admin");
-            usuarios.add(usuario1);
-
-            Robot robot1 = new Robot("AAaaa", "Robot1", "Robot", 1);
-            robots.add(robot1);
-
-            
-            asignarModulosYSistemas(robot1);
-
             menuUsuario();
 
         } catch (Exception e) {
@@ -151,6 +137,7 @@ public class SistemaRobotEquipoD {
         menuUsuario();
     }
 
+
     private static void asignarRobotUsuario(int idUsuario) {
         System.out.println("\n--- ASIGNAR ROBOT ---");
         System.out.print("Ingrese el alias del robot para este usuario: ");
@@ -236,9 +223,10 @@ public class SistemaRobotEquipoD {
     private static void menuRobot(Usuario usuario) {
         System.out.println("\n--- MENÚ DEL ROBOT PARA " + usuario.getAlias() + " ---");
         System.out.println("1. Cambiar alias del robot");
-        System.out.println("2. Ingresar a la simulación");
-        System.out.println("3. Cerrar sesión");
-        System.out.println("4. Salir del programa");
+        System.out.println("2. Consultar información del robot");
+        System.out.println("3. Ingresar a la simulación");
+        System.out.println("4. Cerrar sesión");
+        System.out.println("5. Salir del programa");
         System.out.print("Ingrese una opción: ");
         int opcion = -1;
         try {
@@ -255,7 +243,16 @@ public class SistemaRobotEquipoD {
                 menuRobot(usuario);
                 break;
             case 2:
-                
+                for (Robot robot : robots) {
+                    if (robot.getIdUsuario() == usuario.getId()) {
+                        System.out.println("Información del robot:");
+                        System.out.println(robot.toString());
+                        break;
+                    }
+                }
+                menuRobot(usuario);
+                break;
+            case 3:
                 Robot robotAsignado = null;
                 for(Robot r : robots) {
                     if (r.getIdUsuario() == usuario.getId()) {
@@ -269,12 +266,11 @@ public class SistemaRobotEquipoD {
                     System.out.println("No hay un robot asignado a este usuario. Por favor, asigne uno primero.");
                     menuRobot(usuario);
                 }
-                break;
-            case 3:
+            case 4:
                 System.out.println("Cerrando sesión de " + usuario.getAlias() + ".");
                 menuUsuario();
                 break;
-            case 4:
+            case 5:
                 System.out.println("Saliendo del programa...");
                 System.exit(0);
                 break;
@@ -407,6 +403,18 @@ public class SistemaRobotEquipoD {
 
     private static void simulacionRobot(Usuario usuario, Robot robotActual) {
         System.out.println("\n--- INICIANDO SIMULACIÓN DEL ROBOT '" + robotActual.getAlias() + "' ---");
+        robotActual.encender();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("La simulación fue interrumpida.");
+            return;
+        }
+
+        inicializarMatriz();
+        colocarObstaculos();
+
         
         do {
             limpiarConsola();
@@ -416,18 +424,6 @@ public class SistemaRobotEquipoD {
             System.out.println("Ingrese un comando para el robot (w: avanzar, a: girar izq, d: girar der, q: salir de simulación):");
 
             interaccionUsuarioEnSimulacion(usuario, robotActual, scanner);
-
-            if (robotActual.getModulos() != null && !robotActual.getModulos().isEmpty()) {
-                if (robotActual.getModulos().get(0).getSistemaControl() != null &&
-                    !robotActual.getModulos().get(0).getSistemaControl().enviarRespuestaAccion()) {
-                    System.out.println("Simulación terminada por apagado del robot.");
-                    break;
-                }
-            } else {
-                System.out.println("Simulación terminada: No hay módulos para el robot.");
-                break;
-            }
-            
             try {
                 Thread.sleep(500);
             } catch (InterruptedException e) {
@@ -435,7 +431,6 @@ public class SistemaRobotEquipoD {
                 System.err.println("La simulación fue interrumpida.");
                 break;
             }
-
         } while (true);
 
         System.out.println("Volviendo al menú del robot...");

@@ -52,6 +52,11 @@ public class SistemaControl implements InterfazSistemaControl {
             int resProximidad = sensorProximidad.procesarDatos(sensorProximidad.captarInformacion(yprox, xprox, matrizEntorno));
             int resCamara = camara.procesarDatos(camara.captarInformacion(yprox, xprox, matrizEntorno));
 
+            System.out.println("DEBUG: Posición actual del robot: " + currentPosX + ", " + currentPosY);
+            System.out.println("DEBUG: Nueva posición calculada: " + xprox + ", " + yprox);
+            System.out.println("DEBUG: Resultado del sensor de proximidad: " + resProximidad);
+            System.out.println("DEBUG: Resultado de la cámara: " + resCamara);
+
             if (resProximidad == 0 && resCamara == 3) { 
                 if (xprox >= 0 && xprox < TAMANO_MATRIZ && yprox >= 0 && yprox < TAMANO_MATRIZ) {
                     matrizEntorno[robotPos[1]][robotPos[0]] = '.'; 
@@ -110,7 +115,7 @@ public class SistemaControl implements InterfazSistemaControl {
                     } else {
                         System.out.println("No se pudo emitir el sonido o altavoz no disponible.");
                     }
-                } else if (resProximidad == 1 && resCamara == 2) {
+                } else if ((resProximidad == 1 && resCamara == 2) || (resProximidad == 0 && resCamara == 4)) {
                     System.out.println("SENSOR DE PROXIMIDAD: Hay un obstáculo adelante. CÁMARA: Obstáculo detectado.");
                     if (rotacion != null) {
                         int[] rotaciones = {1, -1};

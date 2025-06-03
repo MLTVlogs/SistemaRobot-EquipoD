@@ -113,4 +113,9 @@ public class Robot implements InterfazModulo {
         }
         System.out.println("Robot " + alias + " apagado completamente.");
     }
+
+    @Override
+    public String toString() {
+        return "Robot [serie=" + serie + ", alias=" + alias + ", descripcion=" + descripcion + ", idUsuario=" + idUsuario + "]";
+    }
 }
