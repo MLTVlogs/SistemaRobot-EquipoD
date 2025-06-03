@@ -5,7 +5,7 @@ package PaqueteRobot;
  * El metodo moverse recibe un array de float con el movimiento a realizar por el Robot
  */
 
-public class ModuloDinamico extends Modulo {
+public abstract class ModuloDinamico extends Modulo {
     
     private int numeroMotores;
 
@@ -23,12 +23,5 @@ public class ModuloDinamico extends Modulo {
     }
 
     // METODO
-    public int moverse(float[] movimiento){
-        return 0;//Logica a implementar
-    }
-
-    @Override
-    public void recibirInfoAccion(int idAccion) {
-    }//Logica a implementar
-
+    public abstract int moverse(float[] movimiento);
 }

@@ -29,17 +29,22 @@ public class Usuario {
     public void setTipo(String tipo) { this.tipo = tipo; }
 
     // OPERACIONES
-    public String[] enviarMensaje() {
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Ingrese el destinatario: ");
-        String destino = sc.nextLine();
-        System.out.println("Ingrese el contenido del mensaje: ");
-        String contenido = sc.nextLine();
-        sc.close();
-        return new String[] { String.valueOf(this.id), destino, contenido };
-    } //logica sujeta a cambios
     
-    public void recibirMensaje(String[] mensaje) {
-        System.out.println(mensaje[0] + " " + mensaje[1] + " " + mensaje[2]);
-    } // recibe mensaje del sistema de comunicación logica a modiificar
+    public String enviarComando(Scanner scanner) {
+        System.out.print("Ingrese su opción ('w': avanzar, 'a': girar izq, 'd': girar der, 'q': salir, o ENTER para continuar): ");
+        String inputLine = "";
+        try {
+            // Check if there's input available without blocking
+            if (System.in.available() > 0) {
+                inputLine = scanner.nextLine().trim();
+            }
+        } catch (java.io.IOException e) {
+            System.err.println("Error de lectura de entrada: " + e.getMessage());
+        }
+        return inputLine;
+    }
+
+    public void recibirMensaje(String mensaje) {
+        System.out.println("[Usuario " + alias + "] Mensaje recibido: " + mensaje);
+    }
 }
