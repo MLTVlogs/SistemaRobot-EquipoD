@@ -35,39 +35,37 @@ public class SistemaControl implements InterfazSistemaControl {
         int currentPosY = robotPos[1];
         char currentDir = robotDir[0];
         Random rand = new Random();
-        int TAMANO_MATRIZ = matrizEntorno.length; // Obtener tamaño de la matriz
+        int TAMANO_MATRIZ = matrizEntorno.length; 
 
         if (comando.equalsIgnoreCase("w") || comando.equalsIgnoreCase("avanzar")) {
-            // Lógica de calcularPosicionProximidad integrada
+           
             int xprox = currentPosX;
             int yprox = currentPosY;
             switch (currentDir) {
                 case '^': yprox = currentPosY - 1; break;
                 case 'v': yprox = currentPosY + 1; break;
                 case '<': xprox = currentPosX - 1; break;
-                case '>': xprox = currentPosX + 1; break; // Corregido: debería ser xprox = currentPosX + 1
+                case '>': xprox = currentPosX + 1; break;
             }
 
             // Lógica de sensado
             int resProximidad = sensorProximidad.procesarDatos(sensorProximidad.captarInformacion(yprox, xprox, matrizEntorno));
             int resCamara = camara.procesarDatos(camara.captarInformacion(yprox, xprox, matrizEntorno));
 
-            if (resProximidad == 0 && resCamara == 3) { // Camino libre (Lógica de moverRobotEnMatriz integrada)
+            if (resProximidad == 0 && resCamara == 3) { 
                 if (xprox >= 0 && xprox < TAMANO_MATRIZ && yprox >= 0 && yprox < TAMANO_MATRIZ) {
-                    matrizEntorno[robotPos[1]][robotPos[0]] = '.'; // Limpia la posición anterior
+                    matrizEntorno[robotPos[1]][robotPos[0]] = '.'; 
                     robotPos[0] = xprox;
                     robotPos[1] = yprox;
-                    matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; // Actualiza la nueva posición con la dirección
+                    matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0];
                     System.out.println("El robot se ha movido.");
                 } else {
                     System.out.println("Movimiento bloqueado: Fuera de los límites del mapa.");
-                    // Si el robot intenta salirse, gestionamos como un obstáculo virtual
-                    // Lógica de manejarInteraccionObstaculo para fuera de límites
                     System.out.println("SENSOR DE PROXIMIDAD: No hay obstáculo adelante. CÁMARA: Sensor fuera de los límites.");
                     if (helicoidal != null) {
                         int[] rotaciones = {1, -1};
                         int giro = helicoidal.moverse(new float[]{rotaciones[rand.nextInt(rotaciones.length)]});
-                        if (giro == 1) { // Lógica de girarDerecha
+                        if (giro == 1) {
                             switch (robotDir[0]) {
                                 case '^': robotDir[0] = '>'; break;
                                 case '>': robotDir[0] = 'v'; break;
@@ -75,8 +73,8 @@ public class SistemaControl implements InterfazSistemaControl {
                                 case '<': robotDir[0] = '^'; break;
                             }
                             System.out.println("El robot ha girado a la derecha. Nueva dirección: " + robotDir[0]);
-                            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; // Actualizar visualmente
-                        } else if (giro == -1) { // Lógica de girarIzquierda
+                            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0];
+                        } else if (giro == -1) {
                             switch (robotDir[0]) {
                                 case '^': robotDir[0] = '<'; break;
                                 case '<': robotDir[0] = 'v'; break;
@@ -84,7 +82,7 @@ public class SistemaControl implements InterfazSistemaControl {
                                 case '>': robotDir[0] = '^'; break;
                             }
                             System.out.println("El robot ha girado a la izquierda. Nueva dirección: " + robotDir[0]);
-                            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; // Actualizar visualmente
+                            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0];
                         } else {
                             System.out.println("Giro no válido.");
                         }
@@ -92,13 +90,13 @@ public class SistemaControl implements InterfazSistemaControl {
                         System.out.println("Módulo helicoidal no disponible para evadir límites.");
                     }
                 }
-            } else { // Obstáculo o mascota (Lógica de manejarInteraccionObstaculo integrada)
-                if (resProximidad == 1 && resCamara == 1) { // Mascota
+            } else { 
+                if (resProximidad == 1 && resCamara == 1) { 
                     System.out.println("SENSOR DE PROXIMIDAD: Hay un obstáculo adelante. CÁMARA: Mascota detectada.");
                     if (altavoz != null && altavoz.realizarAccion() == 1) {
                         System.out.println("El robot ha emitido un sonido para alejar a la mascota.");
                         if (mascotaPos != null) {
-                            matrizEntorno[mascotaPos[1]][mascotaPos[0]] = '.'; // Limpia la posición anterior de la mascota
+                            matrizEntorno[mascotaPos[1]][mascotaPos[0]] = '.'; 
                             int newXMascota, newYMascota;
                             do {
                                 newXMascota = rand.nextInt(TAMANO_MATRIZ);
@@ -112,12 +110,12 @@ public class SistemaControl implements InterfazSistemaControl {
                     } else {
                         System.out.println("No se pudo emitir el sonido o altavoz no disponible.");
                     }
-                } else if (resProximidad == 1 && resCamara == 2) { // Obstáculo fijo
+                } else if (resProximidad == 1 && resCamara == 2) {
                     System.out.println("SENSOR DE PROXIMIDAD: Hay un obstáculo adelante. CÁMARA: Obstáculo detectado.");
                     if (rotacion != null) {
                         int[] rotaciones = {1, -1};
                         int giro = rotacion.moverse(new float[]{rotaciones[rand.nextInt(rotaciones.length)]});
-                        if (giro == 1) { // Lógica de girarDerecha
+                        if (giro == 1) {
                             switch (robotDir[0]) {
                                 case '^': robotDir[0] = '>'; break;
                                 case '>': robotDir[0] = 'v'; break;
@@ -125,8 +123,8 @@ public class SistemaControl implements InterfazSistemaControl {
                                 case '<': robotDir[0] = '^'; break;
                             }
                             System.out.println("El robot ha girado a la derecha. Nueva dirección: " + robotDir[0]);
-                            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; // Actualizar visualmente
-                        } else if (giro == -1) { // Lógica de girarIzquierda
+                            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; 
+                        } else if (giro == -1) { 
                             switch (robotDir[0]) {
                                 case '^': robotDir[0] = '<'; break;
                                 case '<': robotDir[0] = 'v'; break;
@@ -134,7 +132,7 @@ public class SistemaControl implements InterfazSistemaControl {
                                 case '>': robotDir[0] = '^'; break;
                             }
                             System.out.println("El robot ha girado a la izquierda. Nueva dirección: " + robotDir[0]);
-                            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; // Actualizar visualmente
+                            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; 
                         } else {
                             System.out.println("Giro no válido.");
                         }
@@ -146,7 +144,7 @@ public class SistemaControl implements InterfazSistemaControl {
                 }
             }
         } else if (comando.equalsIgnoreCase("a") || comando.equalsIgnoreCase("girar izquierda")) {
-            // Lógica de girarIzquierda integrada
+
             switch (robotDir[0]) {
                 case '^': robotDir[0] = '<'; break;
                 case '<': robotDir[0] = 'v'; break;
@@ -154,9 +152,9 @@ public class SistemaControl implements InterfazSistemaControl {
                 case '>': robotDir[0] = '^'; break;
             }
             System.out.println("El robot ha girado a la izquierda. Nueva dirección: " + robotDir[0]);
-            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; // Actualizar visualmente
+            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0];
         } else if (comando.equalsIgnoreCase("d") || comando.equalsIgnoreCase("girar derecha")) {
-            // Lógica de girarDerecha integrada
+
             switch (robotDir[0]) {
                 case '^': robotDir[0] = '>'; break;
                 case '>': robotDir[0] = 'v'; break;
@@ -164,7 +162,7 @@ public class SistemaControl implements InterfazSistemaControl {
                 case '<': robotDir[0] = '^'; break;
             }
             System.out.println("El robot ha girado a la derecha. Nueva dirección: " + robotDir[0]);
-            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; // Actualizar visualmente
+            matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0];
         } else {
             System.out.println("[SistemaControl Módulo " + idModulo + "] Comando '" + comando + "' no reconocido.");
         }

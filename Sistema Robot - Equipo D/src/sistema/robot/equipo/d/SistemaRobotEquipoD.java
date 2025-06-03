@@ -10,9 +10,9 @@ import java.util.Random;
 public class SistemaRobotEquipoD {
 
     private static Scanner scanner = new Scanner(System.in);
-    private static int[] robotPos = new int[2]; // [posX, posY]
-    private static char[] robotDir = new char[1]; // [direccion]
-    private static int[] mascotaPos = new int[2]; // [posXMascota, posYMascota]
+    private static int[] robotPos = new int[2];
+    private static char[] robotDir = new char[1];
+    private static int[] mascotaPos = new int[2];
     private static final int TAMANO_MATRIZ = 10;
     private static char[][] matrizEntorno = new char[TAMANO_MATRIZ][TAMANO_MATRIZ];
     private static List<Usuario> usuarios = new ArrayList<>();
@@ -20,32 +20,32 @@ public class SistemaRobotEquipoD {
 
     public static void main(String[] args) {
         try {
-            // Initialize the environment matrix and place obstacles/pet once
+
             inicializarMatriz();
             colocarObstaculos();
 
-            // Initial setup for testing, as you had it
+
             Usuario usuario1 = new Usuario(1, "Usuario1", "Admin");
             usuarios.add(usuario1);
 
             Robot robot1 = new Robot("AAaaa", "Robot1", "Robot", 1);
-            robots.add(robot1); // Add robot1 to the list
+            robots.add(robot1);
 
-            // Assign modules to robot1 exactly as you specified
+            
             asignarModulosYSistemas(robot1);
 
             menuUsuario();
 
         } catch (Exception e) {
             System.err.println("Error inesperado en la simulación: " + e.getMessage());
-            e.printStackTrace(); // For debugging
+            e.printStackTrace();
         } finally {
-            scanner.close(); // Close the scanner when the program finishes
+            scanner.close();
             System.exit(0);
         }
     }
 
-    // --- User Interface Methods ---
+    // --- Interfaces ---
     private static void menuUsuario() {
         System.out.println("--- BIENVENIDO AL SISTEMA DE ROBOT ---");
         System.out.println("1. Iniciar sesión");
@@ -113,7 +113,7 @@ public class SistemaRobotEquipoD {
             menuRobot(usuarioLogueado);
         } else {
             System.out.println("Usuario no encontrado o ID incorrecto.");
-            iniciarSesion();
+            menuUsuario();
         }
     }
 
@@ -146,37 +146,26 @@ public class SistemaRobotEquipoD {
         usuarios.add(nuevoUsuario);
         System.out.println("Registro exitoso.");
         
-        // Call asignarRobotUsuario to assign a robot and its modules to the new user
         asignarRobotUsuario(idUsuario);
 
         menuUsuario();
     }
 
-    // --- Robot Assignment and Module Setup ---
     private static void asignarRobotUsuario(int idUsuario) {
         System.out.println("\n--- ASIGNAR ROBOT ---");
         System.out.print("Ingrese el alias del robot para este usuario: ");
         String aliasRobot = scanner.nextLine();
         
-        // Assuming Robot constructor is Robot(String ref, String alias, String tipo, int idUsuario)
         Robot nuevoRobot = new Robot("DEF001", aliasRobot, "Robot", idUsuario);
-        robots.add(nuevoRobot); // Add the new robot to the global list
+        robots.add(nuevoRobot); 
 
-        // Assign modules and systems to the new robot exactly as you specified
         asignarModulosYSistemas(nuevoRobot);
 
         System.out.println("Robot '" + aliasRobot + "' asignado exitosamente al usuario con ID " + idUsuario);
     }
 
-    /**
-     * This method encapsulates the creation and assignment of modules,
-     * their control systems, communication systems, sensors, and actuators
-     * to a given Robot instance, exactly as per your specified structure.
-     *
-     * @param robot The Robot instance to which modules and systems will be assigned.
-     */
     private static void asignarModulosYSistemas(Robot robot) {
-        // Instantiate Modules with all their constructor parameters
+
         ModuloDinamicoExtension extension = new ModuloDinamicoExtension(3,"AAaaa", "ModuloDinamicoExtension", 32, 32, 32);
         ModuloDinamicoRotacion rotacion = new ModuloDinamicoRotacion(5,"AAaaa", "ModuloDinamicoRotacion", 32, 32, 32);
         ModuloDinamicoHelicoidal helicoidal = new ModuloDinamicoHelicoidal(6,"AAaaa", "ModuloDinamicoHelicoidal", 32, 32, 32);
@@ -184,8 +173,6 @@ public class SistemaRobotEquipoD {
         SensorProximidad sensorProximidad = new SensorProximidad(3,"AAaaa", "SensorProximidad", 32, 32, 32);
         Altavoz altavoz = new Altavoz(6,"AAaaa", "Altavoz", 32, 32, 32);
 
-        // Add modules to the robot
-        // This implies Robot.java must have an `agregarModulo(Modulo m)` method
         robot.agregarModulo(extension);
         robot.agregarModulo(rotacion);
         robot.agregarModulo(helicoidal);
@@ -193,7 +180,6 @@ public class SistemaRobotEquipoD {
         robot.agregarModulo(sensorProximidad);
         robot.agregarModulo(altavoz);
 
-        // Assign control systems to the modules
         extension.setSistemaControl(new SistemaControl(extension.getId()));
         rotacion.setSistemaControl(new SistemaControl(rotacion.getId()));
         helicoidal.setSistemaControl(new SistemaControl(helicoidal.getId()));
@@ -201,7 +187,6 @@ public class SistemaRobotEquipoD {
         sensorProximidad.setSistemaControl(new SistemaControl(sensorProximidad.getId()));
         altavoz.setSistemaControl(new SistemaControl(altavoz.getId()));
         
-        // Create communication systems for each module
         SistemaComunicacion sControlExtension = new SistemaComunicacion(extension.getId());
         sControlExtension.setReceptor(true);
         SistemaComunicacion sControlRotacion = new SistemaComunicacion(rotacion.getId());
@@ -215,7 +200,6 @@ public class SistemaRobotEquipoD {
         SistemaComunicacion sControlAltavoz = new SistemaComunicacion(altavoz.getId());
         sControlAltavoz.setEmisor(true);
 
-        // Associate modules to communication systems
         sControlExtension.setIdModulo(extension.getId());
         sControlRotacion.setIdModulo(rotacion.getId());
         sControlHelicoidal.setIdModulo(helicoidal.getId());
@@ -223,15 +207,13 @@ public class SistemaRobotEquipoD {
         sControlSensorProximidad.setIdModulo(sensorProximidad.getId());
         sControlAltavoz.setIdModulo(altavoz.getId());
 
-        // Assign communication systems to the modules
         extension.setSistemaComunicacion(sControlExtension);
         rotacion.setSistemaComunicacion(sControlRotacion);
         helicoidal.setSistemaComunicacion(sControlHelicoidal);
         camara.setSistemaComunicacion(sControlCamara);
         sensorProximidad.setSistemaComunicacion(sControlSensorProximidad);
         altavoz.setSistemaComunicacion(sControlAltavoz);
-        
-        // Add sensors and actuators (assuming these methods exist in your PaqueteRobot classes)
+
         Sensor sensorVisual = new Sensor(35654,"CAMARA","Sensor de vision");
         Sensor sensorInfrarrojo = new Sensor(23564,"PROXIMIDAD","Sensor de proximidad");
 
@@ -270,10 +252,10 @@ public class SistemaRobotEquipoD {
         switch (opcion) {
             case 1:
                 cambiarAliasRobot(usuario.getId());
-                menuRobot(usuario); // Return to the menu after action
+                menuRobot(usuario);
                 break;
             case 2:
-                // Find the robot assigned to this user
+                
                 Robot robotAsignado = null;
                 for(Robot r : robots) {
                     if (r.getIdUsuario() == usuario.getId()) {
@@ -320,36 +302,35 @@ public class SistemaRobotEquipoD {
         }
     }
 
-    // --- Robot Simulation and Environment ---
     private static void inicializarMatriz() {
         for (int i = 0; i < TAMANO_MATRIZ; i++) {
             for (int j = 0; j < TAMANO_MATRIZ; j++) {
                 matrizEntorno[i][j] = '.';
             }
         }
-        robotPos[0] = TAMANO_MATRIZ / 2; // Initial X position
-        robotPos[1] = TAMANO_MATRIZ / 2; // Initial Y position
-        robotDir[0] = '^'; // Initial direction
-        matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0]; // Represent robot on matrix
+        robotPos[0] = TAMANO_MATRIZ / 2;
+        robotPos[1] = TAMANO_MATRIZ / 2;
+        robotDir[0] = '^';
+        matrizEntorno[robotPos[1]][robotPos[0]] = robotDir[0];
     }
 
     private static void colocarObstaculos() {
         Random rand = new Random();
-        for (int i = 0; i < 5; i++) { // Place 5 obstacles
+        for (int i = 0; i < 5; i++) { 
             int obsX, obsY;
             do {
                 obsX = rand.nextInt(TAMANO_MATRIZ);
                 obsY = rand.nextInt(TAMANO_MATRIZ);
-            } while ((obsX == robotPos[0] && obsY == robotPos[1]) || matrizEntorno[obsY][obsX] == 'X'); // Avoid robot and other obstacles
-            matrizEntorno[obsY][obsX] = 'X'; // 'X' for obstacles
+            } while ((obsX == robotPos[0] && obsY == robotPos[1]) || matrizEntorno[obsY][obsX] == 'X'); 
+            matrizEntorno[obsY][obsX] = 'X'; 
         }
 
         // Place the pet
         do {
             mascotaPos[0] = rand.nextInt(TAMANO_MATRIZ);
             mascotaPos[1] = rand.nextInt(TAMANO_MATRIZ);
-        } while ((mascotaPos[0] == robotPos[0] && mascotaPos[1] == robotPos[1]) || matrizEntorno[mascotaPos[1]][mascotaPos[0]] == 'X'); // Avoid robot and obstacles
-        matrizEntorno[mascotaPos[1]][mascotaPos[0]] = 'P'; // 'P' for pet
+        } while ((mascotaPos[0] == robotPos[0] && mascotaPos[1] == robotPos[1]) || matrizEntorno[mascotaPos[1]][mascotaPos[0]] == 'X');
+        matrizEntorno[mascotaPos[1]][mascotaPos[0]] = 'P'; 
     }
 
     private static void imprimirMatriz() {
@@ -375,31 +356,20 @@ public class SistemaRobotEquipoD {
                 System.out.flush();
             }
         } catch (final Exception e) {
-            for (int i = 0; i < 50; ++i) System.out.println(); // Fallback for unsupported systems
+            for (int i = 0; i < 50; ++i) System.out.println();
         }
     }
 
-    /**
-     * Handles user interaction and robot communication during simulation.
-     * Delegates advance/turn/evasion logic to CommunicationSystems and ControlSystem.
-     *
-     * @param usuario The user sending the command.
-     * @param robot The robot processing the command.
-     * @param scanner The scanner for user input.
-     */
     public static void interaccionUsuarioEnSimulacion(Usuario usuario, Robot robot, Scanner scanner) {
         String comandoUsuario = usuario.enviarComando(scanner);
 
-        // NO se establece un comando por defecto como "w" (avanzar) si el usuario solo presiona Enter.
-        // El robot solo avanzará si se le da el comando "w" explícitamente.
         if (comandoUsuario.equalsIgnoreCase("q")) {
             usuario.recibirMensaje("Orden de apagado recibida.");
             robot.apagar();
-            return; // Exit simulation
+            menuRobot(usuario);;
         }
 
         if (robot.getModulos() != null && !robot.getModulos().isEmpty()) {
-            // Find specific module instances from the robot's modules array
             SensorProximidad sensorProximidad = null;
             Camara camara = null;
             Altavoz altavoz = null;
@@ -416,8 +386,6 @@ public class SistemaRobotEquipoD {
                 else if (m instanceof ModuloDinamicoHelicoidal) helicoidal = (ModuloDinamicoHelicoidal) m;
             }
 
-            // This assumes the first module is the primary control module.
-            // You might need a more robust way to select the control module if your design allows multiple.
             Modulo moduloControl = robot.getModulos().get(0);
 
             SistemaComunicacion scModulo = moduloControl.getSistemaComunicacion();
@@ -427,7 +395,6 @@ public class SistemaRobotEquipoD {
                 scModulo.setReceptor(false);
             }
 
-            // Pass all parameters explicitly to Modulo.procesarComando using the retrieved instances
             moduloControl.procesarComando(comandoUsuario,
                                            robotPos, robotDir, matrizEntorno, mascotaPos,
                                            sensorProximidad, camara, altavoz,
@@ -445,15 +412,12 @@ public class SistemaRobotEquipoD {
             limpiarConsola();
             imprimirMatriz();
             System.out.println("----------------------");
-            // Se especifica que el comando 'w' es para avanzar, no hay avance automático.
+            
             System.out.println("Ingrese un comando para el robot (w: avanzar, a: girar izq, d: girar der, q: salir de simulación):");
 
             interaccionUsuarioEnSimulacion(usuario, robotActual, scanner);
 
-            // If command was 'q', interaccionUsuarioEnSimulacion already exited.
-            // If the robot turned off (indicated by SistemaControl's response), exit the loop.
             if (robotActual.getModulos() != null && !robotActual.getModulos().isEmpty()) {
-                // Check if the control module is still active.
                 if (robotActual.getModulos().get(0).getSistemaControl() != null &&
                     !robotActual.getModulos().get(0).getSistemaControl().enviarRespuestaAccion()) {
                     System.out.println("Simulación terminada por apagado del robot.");
@@ -465,14 +429,14 @@ public class SistemaRobotEquipoD {
             }
             
             try {
-                Thread.sleep(500); // Small pause to see movement
+                Thread.sleep(500);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 System.err.println("La simulación fue interrumpida.");
                 break;
             }
 
-        } while (true); // Infinite loop until 'q' is received or robot turns off
+        } while (true);
 
         System.out.println("Volviendo al menú del robot...");
         menuRobot(usuario);

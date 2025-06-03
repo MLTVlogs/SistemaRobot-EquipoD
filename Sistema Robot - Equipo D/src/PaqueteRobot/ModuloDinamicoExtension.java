@@ -26,6 +26,5 @@ public class ModuloDinamicoExtension extends ModuloDinamico {
     
     @Override
     public void recibirInfoAccion(int idAccion) {
-        //Logica a implementar
     }
 }

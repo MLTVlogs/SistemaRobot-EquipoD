@@ -31,7 +31,6 @@ public class Actuador implements InterfazActuador {
 
     @Override
     public int realizarAccion() {
-        // "cada uno de ellos realizará la acción pertinente a su módulo."
         if ("ALTAVOZ".equals(this.tipo)) {
             System.out.println("Actuador (ID: " + id + ", Tipo: " + tipo + "): Emitiendo sonido de alerta.");
             return 1;

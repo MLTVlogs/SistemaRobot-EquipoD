@@ -34,7 +34,6 @@ public class Usuario {
         System.out.print("Ingrese su opción ('w': avanzar, 'a': girar izq, 'd': girar der, 'q': salir, o ENTER para continuar): ");
         String inputLine = "";
         try {
-            // Check if there's input available without blocking
             if (System.in.available() > 0) {
                 inputLine = scanner.nextLine().trim();
             }

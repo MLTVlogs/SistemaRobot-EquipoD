@@ -87,7 +87,7 @@ public class Robot implements InterfazModulo {
         }
         System.out.println("Encendiendo módulos estáticos del robot " + alias + "...");
         for (Modulo modulo : modulos) {
-            if (modulo instanceof ModuloEstatico) { // O !(modulo instanceof ModuloDinamico)
+            if (modulo instanceof ModuloEstatico) {
                 System.out.print("  Encendiendo " + modulo.getDescripcion() + ": ");
                 modulo.encender();
             }
